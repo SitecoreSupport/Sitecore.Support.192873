@@ -24,10 +24,10 @@ namespace Sitecore.Support.ContentSearch.SolrProvider
     {
       this.schema = schema;
 
-      allFields = (from x in this.schema.SolrFields
+      this.allFields = (from x in this.schema.SolrFields
                    select x.Name).ToList();
 
-      allCultures = (from x in this.schema.SolrDynamicFields
+      this.allCultures = (from x in this.schema.SolrDynamicFields
                      where x.Name.StartsWith("*_t_")
                      select x.Name.Replace("*", string.Empty)).ToList();
     }

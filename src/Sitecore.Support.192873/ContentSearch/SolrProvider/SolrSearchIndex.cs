@@ -12,17 +12,17 @@ namespace Sitecore.Support.ContentSearch.SolrProvider
 {
   public class SolrSearchIndex : Sitecore.ContentSearch.SolrProvider.SolrSearchIndex
   {
-    private SolrIndexSchema schema;
+    private SolrIndexSchema solrSchema;
 
-    public override ISearchIndexSchema Schema => this.Schema;
+    public override ISearchIndexSchema Schema => this.solrSchema;
 
     public SolrSearchIndex(string name, string core, IIndexPropertyStore propertyStore, string group) : base(name, core, propertyStore, group)
     {
       var solrOperations = typeof(Sitecore.ContentSearch.SolrProvider.SolrSearchIndex)
         .GetProperty("SolrOperations", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(this)
-        as ISolrOperations<Dictionary<string, object>>;
+        as ISolrOperations<Dictionary<string, object>>; 
 
-      this.schema = new SolrIndexSchema(solrOperations.GetSchema());
+      this.solrSchema = new SolrIndexSchema(solrOperations.GetSchema());
     }
   }
 }
