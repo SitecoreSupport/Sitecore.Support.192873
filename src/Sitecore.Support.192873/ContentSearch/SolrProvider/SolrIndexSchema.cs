@@ -29,7 +29,7 @@ namespace Sitecore.Support.ContentSearch.SolrProvider
 
       allCultures = (from x in this.schema.SolrDynamicFields
                      where x.Name.StartsWith("*_t_")
-                     select x.Name).ToList();
+                     select x.Name.Replace("*", string.Empty)).ToList();
     }
   }
 }
