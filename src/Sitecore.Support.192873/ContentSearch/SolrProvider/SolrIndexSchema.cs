@@ -23,11 +23,13 @@ namespace Sitecore.Support.ContentSearch.SolrProvider
     public SolrIndexSchema(SolrSchema schema) : base(schema)
     {
       this.schema = schema;
+
       allFields = (from x in this.schema.SolrFields
                    select x.Name).ToList();
+
       allCultures = (from x in this.schema.SolrDynamicFields
                      where x.Name.StartsWith("*_t_")
-                     select x.Name.Replace("*_t", string.Empty)).ToList();
+                     select x.Name).ToList();
     }
   }
 }
