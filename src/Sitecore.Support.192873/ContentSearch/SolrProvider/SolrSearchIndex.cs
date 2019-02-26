@@ -16,11 +16,21 @@ namespace Sitecore.Support.ContentSearch.SolrProvider
 
     public override ISearchIndexSchema Schema => this.solrSchema;
 
+    public SolrSearchIndex(string name, string core, IIndexPropertyStore propertyStore) : base(name, core, propertyStore, null)
+    {
+    }
+
     public SolrSearchIndex(string name, string core, IIndexPropertyStore propertyStore, string group) : base(name, core, propertyStore, group)
     {
+    }
+
+    public override void Initialize()
+    {
+      base.Initialize();
+
       var solrOperations = typeof(Sitecore.ContentSearch.SolrProvider.SolrSearchIndex)
         .GetProperty("SolrOperations", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(this)
-        as ISolrOperations<Dictionary<string, object>>; 
+        as ISolrOperations<Dictionary<string, object>>;
 
       this.solrSchema = new SolrIndexSchema(solrOperations.GetSchema());
     }
