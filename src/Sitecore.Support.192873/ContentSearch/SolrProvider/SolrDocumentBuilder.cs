@@ -5,6 +5,7 @@
   using System.Collections.Concurrent;
   using System.Globalization;
   using System.Linq;
+  using System.Reflection;
   using System.Text;
   using System.Threading.Tasks;
   using Sitecore.ContentSearch;
@@ -20,8 +21,6 @@
 
     private readonly CultureInfo culture;
 
-    private readonly ISettings settings;
-
     private readonly IProviderUpdateContext Context;
 
     public SolrDocumentBuilder(IIndexable indexable, IProviderUpdateContext context)
@@ -30,7 +29,6 @@
       this.Context = context;
       this.fieldNameTranslator = context.Index.FieldNameTranslator as SolrFieldNameTranslator;
       this.culture = indexable.Culture;
-      this.settings = context.Index.Locator.GetInstance<ISettings>();
     }
 
     public override void AddField(string fieldName, object fieldValue, bool append = false)
@@ -264,10 +262,22 @@
 
       this.Document.GetOrAdd(fieldName, fieldValue);
 
-      if (this.fieldNameTranslator.HasCulture(fieldName) && !this.settings.DefaultLanguage().StartsWith(this.culture.TwoLetterISOLanguageName))
+      if (this.HasCulture(fieldName))
       {
         this.Document.GetOrAdd(this.fieldNameTranslator.StripKnownCultures(fieldName), fieldValue);
       }
+    }
+
+    private static readonly FieldInfo SchemaFieldInfo = typeof(SolrFieldNameTranslator).GetField("schema", BindingFlags.Instance | BindingFlags.NonPublic);
+    public bool HasCulture(string fieldName)
+    {
+      if (SchemaFieldInfo == null)
+        return false;
+      var schema = (SolrIndexSchema)SchemaFieldInfo.GetValue(fieldNameTranslator);
+      if (schema == null)
+        return false;
+      var cultures = schema.AllCultures.Select(pattern => pattern.StartsWith("_t_") ? pattern : "_t" + pattern);
+      return cultures.Any(c => fieldName.EndsWith(c, StringComparison.Ordinal));
     }
 
     private float GetFieldConfigurationBoost(string fieldName)
